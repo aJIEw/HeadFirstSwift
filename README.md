@@ -181,3 +181,133 @@ print("substring =\"\(substring)\"")
 var substringToNewString = String(substring))
 ```
 
+### Collections
+
+Swift 中有三种基本的集合类型，[Array](https://developer.apple.com/documentation/swift/array) / [Set](https://developer.apple.com/documentation/swift/set) / [Dictionary](https://developer.apple.com/documentation/swift/dictionary)。
+
+#### Arrays
+
+```swift
+var someInts = [0, 1]
+var threeInts = Array(repeating: 2, count: 3)
+var twoInts = [Int](repeating: 3, count: 2)
+var combinedInts = someInts + threeInts + twoInts
+print(combinedInts)
+
+var basket = ["apple", "banana", "orange"]
+basket.insert("blueberry", at: 1)
+print(basket)
+basket.removeLast();
+print(basket)
+
+for (index, value) in basket.enumerated() {
+    print("Item at \(index): \(value)")
+}
+```
+
+#### Set
+
+```swift
+var langs: Set<String> = ["kotlin", "dart", "swift"]
+if langs.contains("swift") {
+    print("Hi, Swift!")
+}
+```
+
+#### Dictionary
+
+```swift
+var namesOfIntegers: [Int: String] = [:]
+namesOfIntegers[1] = "one"
+print(namesOfIntegers)
+
+var languageBirth = ["Kotlin": 2011, "Dart": 2011, "Swift": 2014]
+var keys = [String] (languageBirth.keys) // to array
+print("languages: \(keys)")
+
+for (lang, year) in languageBirth {
+    print("\(lang) is first published at \(year)")
+}
+
+languageBirth["Dart"] = nil // remove item
+print(languageBirth)
+```
+
+### Control Flow
+
+#### For-In Loops
+
+```swift
+// closed range operator
+for index in 1...3 {
+    print("\(index) times 5 is \(index * 5)")
+}
+
+// half-open range operator
+for tick in 1..<3 {
+    print("count to \(tick)")
+}
+
+// stride(from:through/to:by:) function
+for tick in stride(from: 3, through: 12, by: 3) {
+    print("upgrade to \(tick)")
+}
+```
+
+#### While Loops
+
+```swift
+var gameRound = 1
+while gameRound <= 3 {
+    print("Playing round \(gameRound)")
+    gameRound += 1
+}
+print("Game over")
+
+let daysInWeek = 5
+var workingDays = 0
+repeat {
+    print("Day \(workingDays + 1): Today you're going to work")
+    workingDays += 1
+} while workingDays < daysInWeek
+```
+
+#### Switch
+
+请看 [`src/control_flow.swift`](./src/control_flow.swift)。
+
+#### guard
+
+`guard` 和 `if` 的区别在于，它要求条件必须为 `true` 才能执行后面的代码，并且总是包含一个 `else` 语句。
+
+```swift
+func greet(person: [String: String]) {
+    guard let name = person["name"] else {
+        return
+    }
+
+    print("Hello \(name)!")
+
+    guard let location = person["location"] else {
+        print("I hope the weather is nice near you.")
+        return
+    }
+
+    print("I hope the weather is nice in \(location).")
+}
+```
+
+#### available
+
+我们可以在执行代码前判断 API 是否可用：
+
+```swift
+func chooseBestColor() -> String {
+    guard #available(macOS 10.12, *) else {
+        return "gray"
+    }
+    let colors = ColorPreference()
+    return colors.bestColor
+}
+```
+
