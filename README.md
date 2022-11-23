@@ -104,5 +104,80 @@ precondition(index > 3)
 assert(index > 3)
 ```
 
+### String
 
+Swift 中的字符串用法和 Kotlin 基本一致，比如多行字符串等。
+
+#### 扩展分隔符
+
+当字符串中包含多个转义字符的时候，我们可以使用扩展分隔符，语法是在字符串前后都加上 `#`：
+
+```swift
+print(#"Write an "extended delimiters" string in Swift using #\n"."#)
+```
+
+#### 字符串插值
+
+Kotlin 中可以使用 `$` 在字符串中引用变量，Swift 中使用 `\()`。
+
+```swift
+let someString = "some string literals \(3*2)\n"
+print("some string = \(someString)")
+```
+
+#### 字符串常用方法
+
+##### 长度和字符串下标
+
+通过 `count` 获取字符串长度。由于 Swift 中字符串中的每个字符可能使用不同数量的内存空间，所以无法直接使用 int 下标访问，而必须通过字符串下标 ([*String.Index*](https://developer.apple.com/documentation/swift/string/index))：
+
+```swift
+var str = "Swift"
+print("count: \(str.count)")
+
+let endIndex = str.endIndex
+let startIndex = str.startIndex
+
+var lastCharIndex = str.index(before: endIndex)
+print("first: \(str[startIndex]), last: \(str[lastCharIndex])")
+
+var charIndex = str.index(startIndex, offsetBy: 2)
+print("char at \(charIndex.utf16Offset(in: str)): \(str[charIndex])")
+```
+
+上面的例子中，`startIndex` 表示字符串中第一个字符的下标，`endIndex` 表示最后一个字符之后的下标。因此，当字符串为空时，这两个值相同。
+
+我们使用 `index` 方法获取最后一个字符的下标，然后通过 `[indexValue]` 语法获取字符串中的字符。
+
+##### 添加和删除
+
+```swift
+str.insert("!", at: endIndex)
+print("insert !: \(str)")
+
+str.insert(contentsOf: "Hello ", at: startIndex)
+print("insert Hello: \(str)")
+
+str.remove(at: str.index(before: str.endIndex))
+print("remove last char: \(str)")
+
+let range = startIndex..<str.firstIndex(of: "S")!
+str.removeSubrange(range)
+print("remove first word: \(str)")
+```
+
+#### Substring
+
+[Substring](https://developer.apple.com/documentation/swift/substring) 是字符串的一个切片，它是一个独立的类型，但是使用方式和字符串基本一致，而且所有的操作都很高效，因为 Substring 共享原有字符串的存储空间。
+
+```swift
+let greeting = "Hi, Swift!"
+
+let start = greeting.firstIndex(of: "S")!
+let end = greeting.firstIndex(of: "!")!
+let substring = greeting[start...end]
+print("substring =\"\(substring)\"")
+
+var substringToNewString = String(substring))
+```
 
