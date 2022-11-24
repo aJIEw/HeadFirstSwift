@@ -500,3 +500,117 @@ for direction in CompassPoint.allCases {
 }
 ```
 
+### Structures and Classes
+
+#### 模块
+
+到目前为止，以上所有代码执行环境都可以视为在脚本中执行，但是，当我们开始构建大型项目之后，我们不可能将所有的代码都写在一个文件中，我们需要将代码抽象化成结构和类以复用代码。除此之外，我们还可能需要将自己的代码封装成一个模块 (*module*) 给其他人调用。
+
+在 Swift 中，一个模块是一个最小的代码分发单元，它可以表示一个库 (*library*)、框架 (*framework*)、可执行包 (*executable package*)、应用 (*application*) 等，当导入一个模块后，你就可以使用其中任何公共的方法和数据模型了。
+
+虽然 `struct` 和 `class` 可以定义在同一个文件中，但是我觉得最好还是创建一个新的模块，用单独的文件保存，因此，先介绍一下模块的知识，关于访问控制 (*Access Control*) 相关的知识之后再慢慢介绍。
+
+##### Swift Package Manager
+
+我们可以使用 Swift 包管理器创建和发布库 (*library*) 和可执行包 (*executable package*)。
+
+```sh
+mkdir MySwiftPackage
+cd MySwiftPackage
+
+# 在 MySwiftPackage 文件夹下创建一个可执行包
+swift package init --type executable
+# 运行
+swift run
+```
+
+- 基本使用：[Using the Package Manager](https://www.swift.org/getting-started/#using-the-package-manager)
+- 具体用法：[swift-package-manager](https://github.com/apple/swift-package-manager/blob/main/Documentation/Usage.md)
+- API 文档：[Package Description API](https://docs.swift.org/package-manager/PackageDescription/index.html)
+
+#### Struct vs Class
+
+`struct` 和 `class` 在 Swift 都是组织代码的基本结构，它们有很多共同点，比如：
+
+- 都可以定义属性、方法和 subscripts
+- 都可以定义初始化器
+- 都可以被扩展增加功能
+- 都可以实现 protocols 来实现特定用途
+
+不同之处在于，类相比结构有更多特殊功能：
+
+- 类可以被继承
+- 类支持类型转换和运行时类型检查
+- 可以在销毁方法中释放资源
+- 可以使用引用计数，一个类实例可以有多个引用
+
+除此之外，`struct` 和 `class` 的用法基本一致，定义一个 struct：
+
+```swift
+struct Resolution {
+    var width = 0
+    var height = 0
+}
+```
+
+定义一个类：
+
+```swift
+class VideoMode {
+    var resolution = Resolution()
+    var interlaced = false
+    var frameRate = 0.0
+    var name: String?
+}
+```
+
+创建实例：
+
+```swift
+// struct 有一个默认的初始化方法，可以在其中为所有属性赋值，类没有
+var hd = Resolution(width: 1920, height: 1080)
+
+var videoMode = VideoMode()
+```
+
+#### 作为值类型的 `struct` 和 `enum`
+
+在 Swift 中，变量和常量分为两种类型，一种是作为值类型，一种是作为引用类型，基本数据类型 `Int` `Float` `Double` `Bool` `String`，以及集合类型 `Array` `Set` `Dictionary` 都是值类型，它们背后都是基于 `struct` 实现的。也就是说，当把它们作为变量传递时，传递的都是值的拷贝，而不是引用。
+
+`enum` 实例也是一样：
+
+```swift
+var direction = CompassPoint.north
+var newDirection = direction
+direction = .west
+print(newDirection) // still north!
+```
+
+#### 作为引用类型的 `class`
+
+不同于 `struct`，类是作为引用类型使用的，这点毋庸置疑。
+
+```swift
+var normal = VideoMode()
+normal.name = "Normal"
+normal.resolution = sd
+normal.frameRate = 60
+print("\(normal.name!)-> resolution: \(normal.resolution), frame rate: \(normal.frameRate)")
+
+var blueray = normal
+blueray.name = "Blueray"
+normal.resolution = hd
+normal.frameRate = 90
+print("\(blueray.name!)-> resolution: \(blueray.resolution), frame rate: \(blueray.frameRate)")
+```
+
+以上例子中，`blueray` 拷贝了 `normal` 的引用，所以当我们修改 `normal` 的属性时，`blueray` 的属性也会得到修改。
+
+为了判断两个类的实例是否相等，Swift 中引入了一致性判断操作符 (*Identity Operator*) `===` 和 `!==`：
+
+```swift
+if normal === blueray {
+    print("They are the same.")
+}
+```
+
