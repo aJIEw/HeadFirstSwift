@@ -113,7 +113,7 @@ default:
     print("Not on an axis")
 }
 
-// fallthrough keyword, default disabled
+// fallthrough keyword, by default it's not allowed to fallthrough
 let integerToDescribe = 5
 var description = "The number \(integerToDescribe) is"
 switch integerToDescribe {

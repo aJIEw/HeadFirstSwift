@@ -274,7 +274,7 @@ repeat {
 
 #### Switch
 
-请看 [`src/control_flow.swift`](./src/control_flow.swift)。
+Swift 中的 `switch` 语法和其它语言基本一样，不同的是在 `case` 判断中支持更多的模式匹配，比如支持多个值判断、区间判断、元组、临时赋值等。具体请看 [`control_flow.swift`](./src/control_flow.swift)。
 
 #### guard
 
@@ -308,6 +308,148 @@ func chooseBestColor() -> String {
     }
     let colors = ColorPreference()
     return colors.bestColor
+}
+```
+
+### Function
+
+Swift 中的方法同样是 first-class 的，方法可以作为参数，也可以作为返回值。
+
+一个典型的 Swift 方法定义如下：
+
+```swift
+// 方法名称是：greeting(name:)
+func greeting(name: String) -> String {
+    return "Hi, \(name)!"
+}
+```
+
+Swift 中的方法参数与 Objective-C 中一样，是方法名称的一部分，参数分为标签 (*argument label*) 和名称 (*parameter name*) 两部分。假如我们没有定义标签，则默认使用参数名称作为标签，如果想要使用不具名参数，则可以使用 `_` 作为标签。
+
+```swift
+// 方法名称是：greeting(for:)，参数标签和参数名称不同
+func greeting(for name: String) -> String {
+    return "Hi, \(name)!"
+}
+
+// 方法名称是：greeting(_:)，参数无标签
+func greeting(_ name: String) -> String {
+    return "Hi, \(name)"
+}
+```
+
+此外，方法的参数还支持默认值、动态参数列表 (*variadic parameters*) 等。和 Kotlin 不同，Swift 中的参数还可以使用 `inout` 关键字来支持修改参数的值，具体请看 [`function.swift`](./src/function.swift)。
+
+#### 方法类型
+
+我们可以将方法作为数据类型使用：
+
+```swift
+// 作为变量
+var mathFunction: (Int, Int) -> Int = addTwoInts
+
+// 作为参数
+func printMathResult(_ mathFunction: (Int, Int) -> Int) {
+    mathFunction(1, 2)
+}
+
+// 作为返回值
+func produceMathFunction() -> (Int, Int) -> Int {
+    return addTwoInts
+}
+```
+
+#### Closure
+
+Swift 中的 closure 类似于 Kotlin 中的 lambda 方法以及 Objective-C 中的 blcoks。
+
+```swift
+let languages = ["Kotlin", "Dart", "Swift"]
+let sortedWithClosure = languages.sorted(by: {
+  (s1: String, s2: String) -> Bool in s1 < s2
+})
+```
+
+以上例子中，`sorted` 方法的 `by` 参数接收的是一个方法类型，因此我们可以创建一个 closure 去完成调用。一个 closure 的完整语法如下：
+
+```swift
+{ (parameters) -> return type in
+    statements
+}
+```
+
+当参数和返回值的类型可以被推断出来时，可以简写成以下的形式：
+
+```swift
+let sortedWithClosureOneLiner = languages.sorted(by: { s1, s2 -> in s1 < s2 })
+```
+
+另外，在 closure 中，参数可以缩写成 `$index` 的形式，因此，以上调用可以进一步缩写成：
+
+```swift
+let sortedWithClosureNoArgs = languages.sorted(by: { $0 < $1 })
+```
+
+我们甚至可以利用操作符方法 (*Operator Methods*) 继续缩写以上调用，由于 `>` 或 `<` 在字符串中被定义为接受两个字符串参数返回值为布尔类型的方法，正好符合 `sorted` 中 `by` 接收的方法类型，因此，我们可以直接传递操作符：
+
+```swift
+let sortedWithClosureOperator = languages.sorted(by: <)
+```
+
+##### Trailing Closure
+
+类似于 Kotlin 中的 trailing lambda，当方法最后一个参数是一个 closure 时，我们可以将 closure 调用写在 `()` 之外。而当如果 closure 是调用的唯一的参数时，则可以省略 `()`。
+
+上面的例子用拖尾 closure 表示就是：
+
+```swift
+let sortedWithTrailingClosure = languages.sorted { $0 < $1 }
+```
+
+不同之处在于，Swift 中的拖尾表达式可以链式调用：
+
+```swift
+// 模拟下载方法
+func download(_ file: String, from: String) -> String? {
+    print("Downloading \(file) from \(from)")
+    return Int.random(in: 0...1) > 0 ? file : nil
+}
+
+// 下载图片方法，包含两个方法类型的参数
+func downloadPicture(name: String, onComplete: (String) -> Void, onFailure: () -> Void) {
+    if let picture = download(name, from: "picture sever") {
+        onComplete(picture)
+    } else {
+        onFailure()
+    }
+}
+```
+
+使用链式 closure 调用该方法：
+
+```swift
+downloadPicture(name: "photo.jpg") { picture in
+    print("\"\(picture)\" is now downloaded!")
+} onFailure: {
+    print("Couldn't download the picture.")
+}
+```
+
+##### Capturing Values
+
+当我们使用 closure 时，有时会发生捕获 closure 作用域之外的值的现象：
+
+```swift
+func makeIncrementer(forIncrement amount: Int) -> () -> Int {
+    var runningTotal = 0
+    // 捕获外部作用域的值
+    func incrementer() -> Int {
+        // incrementer 方法内部会保留 runningTotal 和 amount 的引用，
+        // 直到该方法不再被使用
+        runningTotal += amount
+        return runningTotal
+    }
+    return incrementer
 }
 ```
 
