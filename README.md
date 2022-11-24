@@ -453,3 +453,50 @@ func makeIncrementer(forIncrement amount: Int) -> () -> Int {
 }
 ```
 
+### Enumeration
+
+枚举值语法：
+
+```swift
+enum CompassPoint {
+    case north
+    case south
+    case east
+    case west
+}
+
+// or
+enum CompassPoint {
+    case north, south, east, west
+}
+```
+
+使用枚举类：
+
+```swift
+var direction = CompassPoint.north
+// 枚举变量定义后修改可以不写枚举类
+direction = .west
+
+switch direction {
+case .north:
+    print("Lots of planets have a north")
+case .south:
+    print("Watch out for penguins")
+case .east:
+    print("Where the sun rises")
+case .west:
+    print("Where the skies are blue")
+}
+
+// 继承 CaseIterable 后就可以遍历枚举类的所有值了
+enum CompassPoint: CaseIterable { ... }
+
+// 使用 allCases 属性获取所有枚举值
+print("There're \(CompassPoint.allCases.count) directions, and they are:")
+// 遍历
+for direction in CompassPoint.allCases {
+    print(direction)
+}
+```
+
