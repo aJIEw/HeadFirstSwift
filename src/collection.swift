@@ -1,5 +1,5 @@
 print("===================== Array =====================")
-var someInts = [0, 1]
+var someInts: [Int] = [0, 1]
 var twoInts = Array(repeating: 2, count: 2)
 var threeInts = [Int](repeating: 3, count: 3)
 var combinedInts = someInts + twoInts + threeInts

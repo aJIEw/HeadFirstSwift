@@ -188,7 +188,7 @@ Swift 中有三种基本的集合类型，[Array](https://developer.apple.com/do
 #### Arrays
 
 ```swift
-var someInts = [0, 1]
+var someInts: [Int] = [0, 1]  // 类型可省略
 var threeInts = Array(repeating: 2, count: 3)
 var twoInts = [Int](repeating: 3, count: 2)
 var combinedInts = someInts + threeInts + twoInts
@@ -218,7 +218,7 @@ if langs.contains("swift") {
 
 ```swift
 var namesOfIntegers: [Int: String] = [:]
-namesOfIntegers[1] = "one"
+namesOfIntegers[1] = "one" // 使用 subscript 访问或赋值
 print(namesOfIntegers)
 
 var languageBirth = ["Kotlin": 2011, "Dart": 2011, "Swift": 2014]
@@ -498,6 +498,14 @@ print("There're \(CompassPoint.allCases.count) directions, and they are:")
 for direction in CompassPoint.allCases {
     print(direction)
 }
+
+// 枚举类默认是没有原始数据类型 (raw type) 的，但是我们可以通过继承自指定类型后获得
+// 比如继承 Int，则原始数据类型就是随定义位置自增的 Int，继承自 String 就是对应的字符串
+enum Planet: Int {
+    case mercury = 1, venus, earth, mars, jupiter, saturn, uranus, neptune
+}
+// 使用 rawValue 访问原始数据
+print("Earth is No.\(Planet.earth.rawValue) in the solar system.")
 ```
 
 ### Structures and Classes
@@ -586,22 +594,30 @@ direction = .west
 print(newDirection) // still north!
 ```
 
+因此，当我们需要改变值类型时，一般需要在实例方法上添加 `mutating` 关键字：
+
+```swift
+mutating func changeDirection(_ newDirection: CompassPoint) {
+    self = newDirection
+}
+```
+
 #### 作为引用类型的 `class`
 
-不同于 `struct`，类是作为引用类型使用的，这点毋庸置疑。
+不同于 `struct`，类的实例是作为引用类型使用的，这点毋庸置疑。
 
 ```swift
 var normal = VideoMode()
 normal.name = "Normal"
 normal.resolution = sd
 normal.frameRate = 60
-print("\(normal.name!)-> resolution: \(normal.resolution), frame rate: \(normal.frameRate)")
+print("\(normal.name!)-> resolution: \(normal.resolution)")
 
 var blueray = normal
 blueray.name = "Blueray"
 normal.resolution = hd
 normal.frameRate = 90
-print("\(blueray.name!)-> resolution: \(blueray.resolution), frame rate: \(blueray.frameRate)")
+print("\(blueray.name!)-> resolution: \(blueray.resolution)")
 ```
 
 以上例子中，`blueray` 拷贝了 `normal` 的引用，所以当我们修改 `normal` 的属性时，`blueray` 的属性也会得到修改。
@@ -612,5 +628,71 @@ print("\(blueray.name!)-> resolution: \(blueray.resolution), frame rate: \(bluer
 if normal === blueray {
     print("They are the same.")
 }
+```
+
+#### Methods
+
+方法分为实例方法 (*instance method*) 和类型方法 (*type methods*)，类型方法也就是 Objective-C 中的类方法。相比 C 和 Objective-C，Swift 最大的不同在于，除了 `class` 之外，`struct` 和 `enum` 类中也能定义方法。
+
+##### 实例方法
+
+```swift
+func getResolution() -> String {
+  return "width: \(width), height: \(height)"
+}
+```
+
+##### 类型方法
+
+在 Swift 中，同样使用 `static` 关键字声明类型方法，对于类而言，还可以使用 `class func` 关键字，这样子类就可以继承和覆写父类中的类型方法了。
+
+```swift
+class SomeClass {
+    class func someTypeMethod() {
+        // do something
+    }
+}
+
+struct SomeStruct {
+		static func someTypeMethod() {
+        // do something
+    }
+}
+```
+
+#### Subscripts
+
+Subscript 是创建对集合、列表等的成员进行访问和赋值的语法。我们能够通过下标访问数组、字典等都是因为其内部实现了 subscript 方法。
+
+我们可以在任意的类、结构或枚举类中使用 subscript，其语法如下：
+
+```swift
+subscript(index: Int) -> Int {
+    get {
+        // 返回值
+    }
+    set(newValue) {
+        // 赋值
+    }
+}
+```
+
+`subcript` 可以指定任意的参数和任意类型的返回值，也可以为参数设置默认值和使用可变参数列表，但是不可以使用 `inout` 参数。
+
+##### Type Subscript
+
+类型 subscript 和类型方法相似，是直接作用于类型之上的方法。
+
+```swift
+enum Planet: Int {
+    case mercury = 1, venus, earth, mars, jupiter, saturn, uranus, neptune
+
+    // 添加类型 subscript，直接通过下标创建枚举类实例
+    static subscript(n: Int) -> Planet {
+        return Planet(rawValue: n)!
+    }
+}
+
+var mars = Planet[4]
 ```
 

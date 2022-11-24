@@ -8,7 +8,9 @@ public struct HeadFirstSwift {
         var hd = Resolution(width: 1920, height: 1080)
         var sd = Resolution(width: 1280, height: 600)
 
-        var normal = VideoMode()
+        VideoMode.changeDefaultResolution(hd)
+        var normal = VideoMode.getDefaultMode()
+        print("Default one: \(normal.resolution)")
         normal.name = "Normal"
         normal.resolution = sd
         normal.frameRate = 60
@@ -23,5 +25,9 @@ public struct HeadFirstSwift {
         if normal === blueray {
             print("They are the same.")
         }
+
+
+        print("===================== Subscripts =====================")
+
     }
 }
