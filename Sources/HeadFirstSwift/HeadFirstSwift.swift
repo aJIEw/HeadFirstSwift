@@ -27,7 +27,28 @@ public struct HeadFirstSwift {
         }
 
 
-        print("===================== Subscripts =====================")
+        print("===================== Error Handling =====================")
+        let vendingMachine = VendingMachine();
 
+        func buy(_ vendingMachine: VendingMachine, _ name: String, deposit: Int? = nil) {
+            print("Buying \(name) from vending machine")
+
+            let coins = deposit ?? 12;
+            vendingMachine.coinsDeposited = coins
+            print("You deposited \(coins) coins.")
+
+            do {
+                try vendingMachine.vend(name: name)
+                print("Enjoy your \(name)!")
+            } catch {
+                print("Something went wrong: \(error)")
+            }
+        }
+
+        let name = "Chips"
+        buy(vendingMachine, name, deposit: 15)
+        buy(vendingMachine, name, deposit: 15)
+        buy(vendingMachine, name, deposit: 15)
+        buy(vendingMachine, name, deposit: 15)
     }
 }

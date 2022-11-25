@@ -6,6 +6,11 @@ class VideoMode {
     var frameRate = 0.0
     var name: String?
 
+    init() {
+        name = "Default"
+        print("Initializing VideoMode \(name!)...")
+    }
+
     class func getDefaultMode() -> VideoMode {
         var videoMode = VideoMode()
         videoMode.resolution = defaultResolution

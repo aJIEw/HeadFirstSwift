@@ -575,9 +575,10 @@ class VideoMode {
 创建实例：
 
 ```swift
-// struct 有一个默认的初始化方法，可以在其中为所有属性赋值，类没有
+// struct 有默认的初始化方法 (memberwise initializer)，可以在其中为所有属性赋值
 var hd = Resolution(width: 1920, height: 1080)
 
+// 类只有一个默认构造器
 var videoMode = VideoMode()
 ```
 
@@ -695,4 +696,156 @@ enum Planet: Int {
 
 var mars = Planet[4]
 ```
+
+#### Initialization
+
+`class` 和 `struct` 的构造器方法是 `init`：
+
+```swift
+init(argumentLabel parameterName: Type, ...) {
+    // 初始化常量和属性等
+  	self.someValue = someValue
+}
+```
+
+如果初始化参数标签和属性名相同，可以使用 `self` 引用类中的属性，类似于其他语言中的 `this`。
+
+#### Deinitialization
+
+类相比 `struct` 还多了一个销毁的方法 `deinit`，在类实例被销毁之前被调用：
+
+```swift
+deinit {
+    // 释放资源等
+}
+```
+
+销毁方法会自动调用父类销毁方法，即使子类没有定义销毁方法也一样，所以我们不用担心父类销毁方法得不到调用。
+
+### 其它
+
+#### Optional Chaining
+
+我们对可为空的值可以链式调用：
+
+```swift
+if let hasRmb = person.wallert?.rmb?.notEmpty {
+    print("You can pay with RMB.")
+} else {
+    print("Insufficient funds.")
+}
+```
+
+#### 异常处理
+
+Swift 中的异常用 `Error` 代表，它是一个内容为空的 protocol，我们可以使用它来自定义我们的异常，通常使用 `enum` 类来实现。
+
+```swift
+enum VendingMachineError: Error {
+    case invalidSelection
+    case insufficientFunds(coinsNeeded: Int)
+    case outOfStock
+}
+```
+
+抛出异常的语法：
+
+```swift
+throw VendingMachineError.insufficientFunds(coinsNeeded: 5)
+```
+
+在 Swift 中，当遇到一个异常时，我们有 4 种处理方式：
+
+- 向外传递异常 `throws`
+- 使用 `do..catch` 语法捕捉异常
+- 将异常作为可选值处理 `try?`
+- 判定异常不会出现 `try!`
+
+下面一一介绍。
+
+##### 向外传递异常
+
+当某个方法不去处理异常时，可以使用 `throws` 关键字将异常向外抛出：
+
+```swift
+func vend(name: String) throws {
+		guard let item = inventory[name] else {
+        throw VendingMachineError.invalidSelection
+    }
+  
+  	...
+}
+```
+
+##### 捕捉异常
+
+语法：
+
+```swift
+do {
+    try expression
+    statements
+} catch pattern 1 {
+    statements
+} catch pattern 2 where condition {
+    statements
+} catch pattern 3, pattern 4 where condition {
+    statements
+} catch {
+    statements
+}
+```
+
+例子：
+
+```swift
+do {
+    try vendingMachine.vend(name: name)
+    print("Enjoy your \(name)!")
+} catch {
+    // 捕捉任何异常，使用 error 获取异常类
+    print("Something went wrong: \(error)")
+}
+```
+
+##### 用可选值接收
+
+当我们只是想要获取结果时，可以不对有可能抛出的异常进行处理，而是用可选值接收：
+
+```swift
+let result = try? funcMightThrows()
+```
+
+上面使用 `try?` 调用了一个有可能抛出异常的方法，调用成功则会获得结果，抛出异常则结果为 `nil`。
+
+##### 判断异常不会出现
+
+当我们确信不会抛出异常时，可以强制完成调用，将异常放到运行时抛出。
+
+```swift
+let photo = try! loadImage(atPath: "./Resources/John Appleseed.jpg")
+```
+
+##### `defer` 表达式
+
+当一个方法有可能会抛出异常时，我们可能想要在异常抛出时执行一些操作，比如打开一个文件流后，如果执行过程中出现异常，我们会想要及时关闭文件流，此时可以使用 `defer` 表达式：
+
+```swift
+func processFile(filename: String) throws {
+    if exists(filename) {
+        let file = open(filename)
+        defer {
+            close(file)
+        }
+        while let line = try file.readline() {
+            // Work with the file.
+        }
+        // close(file) is called here, at the end of the scope.
+    }
+}
+```
+
+一个方法中可以有多个 `defer` 表达式，但是执行顺序是从下往上的，也就是最后定义的 `defer` 表达式最先执行。而且即使不抛出异常的方法，依然可以使用 `defer` 表达式。
+
+
 
