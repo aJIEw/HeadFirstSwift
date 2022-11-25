@@ -711,6 +711,28 @@ init(argumentLabel parameterName: Type, ...) {
 
 如果初始化参数标签和属性名相同，可以使用 `self` 引用类中的属性，类似于其他语言中的 `this`。
 
+##### `required` init
+
+我们可以将某个构造器方法标记为 `required`：
+
+```swift
+class SomeClass {
+    required init(param: Type) {
+        // initializer implementation goes here
+    }
+}
+```
+
+这样，子类就必须实现它：
+
+```swift
+class SomeSubclass: SomeClass {
+    required init(param: Type) {
+        // subclass implementation of the required initializer goes here
+    }
+}
+```
+
 #### Deinitialization
 
 类相比 `struct` 还多了一个销毁的方法 `deinit`，在类实例被销毁之前被调用：
@@ -764,8 +786,123 @@ struct Manager {
   	
   	var jobTitle = JobTitle.vacant
   
-		func attendMeeting(meetingName: String) {
+    func attendMeeting(meetingName: String) {
         print("\(name)(\(jobTitle)) is attending <\(meetingName)> meeting.")
+    }
+}
+```
+
+### Protocols
+
+和 Objective-C 一样，Swift 中也有 protocol 的概念，我们用它来定义一组功能，然后交给子类实现，类似于其他语言中的接口概念。在 Swift 中，`enum` / `struct` / `class` 都可以实现 protocol 来增强自身的功能。
+
+语法：
+
+```swift
+protocol SomeProtocol {
+	  static var someTypeProperty: Type { get set }
+  
+    var mustBeSettable: Type { get set }
+    var doesNotNeedToBeSettable: Type { get }
+  
+    init(parameterName: Type)
+  
+  	static func someTypeMethod(argumentLabel parameterName: Type) -> returnValue
+  
+  	func someMethod(argumentLabel parameterName: Type) -> returnValue
+}
+```
+
+实现：
+
+```swift
+class SomeClass: SomeSuperclass, FirstProtocol, AnotherProtocol {
+    // 实现属性和方法
+}
+```
+
+#### Mutate 方法
+
+对于值类型 (*struct & enum*)，假如想要改变属性或自身的实例，需要在方法前添加 `mutating` 关键字。
+
+假如你确定 protocol 中的某个方法有可能会改变值且有可能会被值类型使用，则可以用 `mutating` 修饰：
+
+```swift
+protocol Togglable {
+    mutating func toggle()
+}
+```
+
+子类：
+
+```swift
+enum OnOffSwitch: Togglable {
+    case off, on
+    // 如果是被 class 实现则不需要写 mutating
+    mutating func toggle() {
+        switch self {
+        case .off:
+            self = .on
+        case .on:
+            self = .off
+        }
+    }
+}
+```
+
+##### 初始化方法
+
+protocol 中的初始化方法都是 `required` 的，子类必须实现：
+
+```swift
+// 假如 protocol 中定义了 init() 方法
+class SomeClass: SomeProtocol {
+    required init() {
+    }
+}
+```
+
+假如子类实现同时继承了父类和实现了 protocol，则需要使用 `required override` 关键字：
+
+```swift
+class SomeSubClass: SomeSuperClass, SomeProtocol {
+    // "required" from SomeProtocol conformance; "override" from SomeSuperClass
+    required override init() {
+        // initializer implementation goes here
+    }
+}
+```
+
+### Extensions
+
+Swift 中的 `extension` 类似于 Objective-C 中的 category，用于扩展 `enum` / `struct` / `class` / `protocol` 的功能，比如：
+
+- 增加计算后实例变量和类型变量（只有返回值）
+- 增加实例方法 (*instance methods*) 和类型方法 (*type methods*)
+- 添加新的构造器方法 (*initializers*)
+- 添加 `subcript` 方法
+- 添加和使用新的嵌套类型
+- 实现新的 `protocol`
+
+例子：
+
+```swift
+extension VendingMachine {
+    // computed instance property
+    var singleSongPrice: Int {
+        return 10
+    }
+
+    func playSong(name: String) throws {
+        guard coinsDeposited > singleSongPrice  else {
+            throw VendingMachineError.insufficientFunds(coinsNeeded: singleSongPrice)
+        }
+
+        coinsDeposited -= 5
+
+        refundRemaining()
+
+        print("Thanks for your coins, now playing \(name)...")
     }
 }
 ```

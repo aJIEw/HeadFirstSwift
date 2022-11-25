@@ -12,11 +12,16 @@ enum VendingMachineError: Error {
 class VendingMachine {
     var inventory = [
         "Candy Bar": Item(price: 12, count: 7),
-        "Chips": Item(price: 10, count: 3),
+        "Chips": Item(price: 10, count: 2),
         "Pretzels": Item(price: 7, count: 11)
     ]
 
     var coinsDeposited = 0
+
+    func putCoin(_ number: Int) {
+        coinsDeposited = number
+        print("You put in \(number) \(getCoinLabel()).")
+    }
 
     func vend(name: String) throws {
         guard let item = inventory[name] else {
@@ -27,7 +32,7 @@ class VendingMachine {
             throw VendingMachineError.outOfStock
         }
 
-        guard item.price <= coinsDeposited else {
+        guard coinsDeposited > item.price else {
             throw VendingMachineError.insufficientFunds(coinsNeeded: item.price - coinsDeposited)
         }
 
@@ -39,9 +44,17 @@ class VendingMachine {
 
         print("Dispensing \(name)")
 
+        refundRemaining()
+    }
+
+    func refundRemaining() {
         if coinsDeposited > 0 {
-          print("Returning \(coinsDeposited) coins back")
+          print("Returning \(coinsDeposited) \(getCoinLabel()) back")
           coinsDeposited = 0
         }
+    }
+
+    func getCoinLabel() -> String {
+        coinsDeposited > 1 ? "coins" : "coin"
     }
 }

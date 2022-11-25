@@ -40,7 +40,7 @@ public struct HeadFirstSwift {
             print("Buying \(name) from vending machine")
 
             let coins = deposit ?? 12;
-            vendingMachine.coinsDeposited = coins
+            vendingMachine.putCoin(coins)
             print("You deposited \(coins) coins.")
 
             do {
@@ -48,11 +48,11 @@ public struct HeadFirstSwift {
                 print("Enjoy your \(name)!")
             } catch {
                 print("Something went wrong: \(error)")
+                vendingMachine.refundRemaining()
             }
         }
 
         let name = "Chips"
-        buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
@@ -61,5 +61,22 @@ public struct HeadFirstSwift {
         print("===================== Nested Types =====================")
         let cto = Manager(name: "Tim", jobTitle: .CTO)
         cto.attendMeeting(meetingName: "Product Release Date")
+
+
+        print("===================== Protocols =====================")
+        var lightSwitch = OnOffSwitch.on
+        print("light is \(lightSwitch)")
+        lightSwitch.toggle()
+        print("light is \(lightSwitch)")
+
+
+        print("===================== Extensions =====================")
+        do {
+            vendingMachine.putCoin(10)
+            try vendingMachine.playSong(name: "Rain and Tears")
+        } catch {
+            print("Something went wrong: \(error)")
+            vendingMachine.refundRemaining()
+        }
     }
 }
