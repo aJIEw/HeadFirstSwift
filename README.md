@@ -286,7 +286,8 @@ func greet(person: [String: String]) {
         return
     }
 
-    print("Hello \(name)!")
+  	// 使用 guard 后，optional binding 中的变量在后面的作用域中也可用了
+    print("Hello \(name)!") // 改成 if 后试试
 
     guard let location = person["location"] else {
         print("I hope the weather is nice near you.")
@@ -721,6 +722,53 @@ deinit {
 ```
 
 销毁方法会自动调用父类销毁方法，即使子类没有定义销毁方法也一样，所以我们不用担心父类销毁方法得不到调用。
+
+#### Type Casting
+
+Swift 中的类型检查同样使用 `is` 关键字：
+
+```swift
+if instance is Type {
+    print("It's the type")
+}
+
+if !(instance is Type) {
+		print("Not the type")
+}
+```
+
+向下转型则使用 `as?` 和 `as!`：
+
+```swift
+// optional 转换
+if let movie = item as? Movie {
+    print("Movie: \(movie.name), dir. \(movie.director)")
+}
+
+// 强制类型转换
+var song = item as! Song
+```
+
+#### Nested Types
+
+我们可以在类、枚举类型、结构中定义嵌套类型。
+
+```swift
+struct Manager {
+    enum JobTitle {
+        case CEO, CFO, CTO, CMO, CHRO, CCO
+        case vacant
+    }
+  	
+    let name: String = ""
+  	
+  	var jobTitle = JobTitle.vacant
+  
+		func attendMeeting(meetingName: String) {
+        print("\(name)(\(jobTitle)) is attending <\(meetingName)> meeting.")
+    }
+}
+```
 
 ### 其它
 

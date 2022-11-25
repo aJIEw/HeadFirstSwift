@@ -22,6 +22,12 @@ public struct HeadFirstSwift {
         normal.frameRate = 90
         print("\(blueray.name!)-> resolution: \(blueray.resolution), framerate: \(blueray.frameRate)")
 
+        // type check
+        if !(blueray is Resolution) {
+            print("blueray is not Resolution")
+        }
+
+        // reference check
         if normal === blueray {
             print("They are the same.")
         }
@@ -50,5 +56,10 @@ public struct HeadFirstSwift {
         buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
+
+
+        print("===================== Nested Types =====================")
+        let cto = Manager(name: "Tim", jobTitle: .CTO)
+        cto.attendMeeting(meetingName: "Product Release Date")
     }
 }
