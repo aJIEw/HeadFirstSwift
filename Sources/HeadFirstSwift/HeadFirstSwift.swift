@@ -1,3 +1,10 @@
+var globalVariable: String = "Swift"
+
+func gloablFunc() {
+    @SmallNumber var version: Int = 5
+    print("\(globalVariable) \(version)")
+}
+
 @main
 public struct HeadFirstSwift {
     public private(set) var text = "Hello, World!"
@@ -33,25 +40,13 @@ public struct HeadFirstSwift {
         }
 
 
+        print("===================== Properties =====================")
+        var rect = MixedRectangle(width: 15, height: 15)
+        print("\(rect)\nwidth = \(rect.width), height = \(rect.height)")
+
+
         print("===================== Error Handling =====================")
         let vendingMachine = VendingMachine();
-
-        func buy(_ vendingMachine: VendingMachine, _ name: String, deposit: Int? = nil) {
-            print("Buying \(name) from vending machine")
-
-            let coins = deposit ?? 12;
-            vendingMachine.putCoin(coins)
-            print("You deposited \(coins) coins.")
-
-            do {
-                try vendingMachine.vend(name: name)
-                print("Enjoy your \(name)!")
-            } catch {
-                print("Something went wrong: \(error)")
-                vendingMachine.refundRemaining()
-            }
-        }
-
         let name = "Chips"
         buy(vendingMachine, name, deposit: 15)
         buy(vendingMachine, name, deposit: 15)
@@ -59,7 +54,7 @@ public struct HeadFirstSwift {
 
 
         print("===================== Nested Types =====================")
-        let cto = Manager(name: "Tim", jobTitle: .CTO)
+        let cto = Manager(name: "Tim", jobTitle: .CEO)
         cto.attendMeeting(meetingName: "Product Release Date")
 
 
@@ -75,7 +70,22 @@ public struct HeadFirstSwift {
             vendingMachine.putCoin(10)
             try vendingMachine.playSong(name: "Rain and Tears")
         } catch {
-            print("Something went wrong: \(error)")
+            print("Can't play this song, something went wrong: \(error)")
+            vendingMachine.refundRemaining()
+        }
+    }
+
+    static func buy(_ vendingMachine: VendingMachine, _ name: String, deposit: Int? = nil) {
+        print("Buying \(name) from vending machine")
+
+        let coins = deposit ?? 12;
+        vendingMachine.putCoin(coins)
+
+        do {
+            try vendingMachine.vend(name: name)
+            print("Enjoy your \(name)!")
+        } catch {
+            print("Can't vend you \(name), something went wrong: \(error)")
             vendingMachine.refundRemaining()
         }
     }

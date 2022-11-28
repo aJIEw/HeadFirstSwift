@@ -17,8 +17,8 @@ struct Manager {
 
       self.jobTitle = title
 
-      if title == .CTO {
-        print("There's a new CTO: \(name)")
+      if title == .CEO {
+        print("There's a new CEO: \(name)")
       }
     }
   

@@ -632,6 +632,144 @@ if normal === blueray {
 }
 ```
 
+#### Properties
+
+根据是否保存值来看，属性可以分成两种，分别是存值属性 (*Stored Properties*) 和计算后属性 (*Computed Properties*)。
+
+##### Stored Properties
+
+存值属性通常在类 (`class`) 和结构 (`struct`) 中作为常量 (`var`) 和变量 (`let`) 使用。
+
+```swift
+struct SomeStruct {
+    let someConstant = 0
+    var someVar = 0
+    // 延迟初始化属性
+  	lazy var importer = DataImporter()
+}
+```
+
+##### Computed Properties
+
+计算后属性除了可以在类和结构中使用外，也可以在枚举类中使用，它不保存值，但是会提供 getter 方法和可选的 setter 方法从其它属性或值间接地计算或设值后得到。
+
+```swift
+class SomeClass {
+    var computed: Int = {
+        get {
+            // 根据其它属性计算得到返回值
+        }
+        // optional
+        set(newValue) {
+            // 更新相关联的属性，从而计算新值
+        }
+        // 也可以不写 setter，直接使用返回值作为 getter
+        // 那么，该计算后属性就是 read-only 的
+        // return 10
+    }
+}
+```
+
+##### Property Observers
+
+我们还可以在属性上设置监听器，从而在属性设值之前和设值之后做一些操作。对于存值属性，我们通过 `willSet` 和 `didSet` 方法监听；对于计算后属性，则可以通过 set 方法监听。
+
+```swift
+struct SomeStruct {
+    var someVar: Int {
+        willSet(newValue) {
+            print("Before set new value")
+        }
+        didSet {
+            // 旧值用 oldValue 表示
+            print("new value = \(someVar), old value = \(oldValue)")
+        }
+    }
+}
+```
+
+##### Property Wrappers
+
+当我们定义了如何存储一个属性时，为了复用代码，我们可以将它作为模板使用。
+
+```swift
+@propertyWrapper
+struct TwelveOrLess {
+    private var number = 0
+    var wrappedValue: Int {
+        get { return number }
+        set { number = min(newValue, 12) }
+    }
+}
+```
+
+比如以上定义了一个限制最大值的 property wrapper 之后，可以这样使用：
+
+```swift
+struct SmallRectangle {
+    @TwelveOrLess var height: Int
+    @TwelveOrLess var width: Int
+}
+```
+
+这样，使用了该 property wrapper 的属性最大值会被限制为 12。
+
+我们也可以在 property wrapper 上设置初始化值：
+
+```swift
+@propertyWrapper
+struct SmallNumber {
+    private var maximum: Int
+    private var number: Int
+
+    var wrappedValue: Int {
+        get { return number }
+        set { number = min(newValue, maximum) }
+    }
+
+    init() {
+        maximum = 12
+        number = 0
+    }
+  
+    init(wrappedValue: Int) {
+        maximum = 12
+        number = min(wrappedValue, maximum)
+    }
+  
+    init(wrappedValue: Int, maximum: Int) {
+        self.maximum = maximum
+        number = min(wrappedValue, maximum)
+    }
+}
+```
+
+通过添加构造器方法，使得我们可以指定初始值。
+
+```swift
+struct MixedRectangle {
+    @SmallNumber(maximum: 20) var width: Int = 2
+    @SmallNumber var height: Int = 1
+}
+```
+
+##### Global and Local Variables
+
+我们可以像属性一样设置全局变量，不过全局变量总是会被延迟初始化。我们也可以为全局变量或者本地变量设置监听器，但是不可以为全局变量或计算后变量设置 property wrapper。
+
+```swift
+var globalVariable: String = "Swift"
+
+func gloablFunc() {
+    @SmallNumber var version: Int = 5
+    print("\(globalVariable) \(version)")
+}
+```
+
+##### Type Properties
+
+类型属性也就是静态属性，不需要通过创建实例而是可以直接通过类型访问的属性。
+
 #### Methods
 
 方法分为实例方法 (*instance method*) 和类型方法 (*type methods*)，类型方法也就是 Objective-C 中的类方法。相比 C 和 Objective-C，Swift 最大的不同在于，除了 `class` 之外，`struct` 和 `enum` 类中也能定义方法。
@@ -723,7 +861,7 @@ class SomeClass {
 }
 ```
 
-这样，子类就必须实现它：
+这样的话，子类就必须实现它：
 
 ```swift
 class SomeSubclass: SomeClass {
@@ -877,14 +1015,14 @@ class SomeSubClass: SomeSuperClass, SomeProtocol {
 
 Swift 中的 `extension` 类似于 Objective-C 中的 category，用于扩展 `enum` / `struct` / `class` / `protocol` 的功能，比如：
 
-- 增加计算后实例变量和类型变量（只有返回值）
+- 增加计算后实例变量和类型变量（*computed properties*）
 - 增加实例方法 (*instance methods*) 和类型方法 (*type methods*)
 - 添加新的构造器方法 (*initializers*)
 - 添加 `subcript` 方法
-- 添加和使用新的嵌套类型
+- 添加和使用新的嵌套类型 (*nested types*)
 - 实现新的 `protocol`
 
-例子：
+增加实例变量和实例方法的例子：
 
 ```swift
 extension VendingMachine {
@@ -893,11 +1031,13 @@ extension VendingMachine {
         return 10
     }
 
+    /// instance method
     func playSong(name: String) throws {
         guard coinsDeposited > singleSongPrice  else {
             throw VendingMachineError.insufficientFunds(coinsNeeded: singleSongPrice)
         }
 
+        // access instance properties and methods
         coinsDeposited -= 5
 
         refundRemaining()
@@ -906,6 +1046,8 @@ extension VendingMachine {
     }
 }
 ```
+
+注意，添加新的实例变量必须是 computed properties。
 
 ### 其它
 

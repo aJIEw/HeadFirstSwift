@@ -32,7 +32,7 @@ class VendingMachine {
             throw VendingMachineError.outOfStock
         }
 
-        guard coinsDeposited > item.price else {
+        guard coinsDeposited >= item.price else {
             throw VendingMachineError.insufficientFunds(coinsNeeded: item.price - coinsDeposited)
         }
 

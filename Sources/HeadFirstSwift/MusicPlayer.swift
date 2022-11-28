@@ -1,15 +1,24 @@
 extension VendingMachine {
     // computed instance property
     var singleSongPrice: Int {
-        return 10
+        get {
+            inventory["Chips"]?.price ?? 5
+        }
+
+        set(price) {
+            print("set new price at \(price)")
+            inventory["Chips"]?.price = price
+        }
     }
 
+    /// instance method
     func playSong(name: String) throws {
-        guard coinsDeposited > singleSongPrice  else {
+        guard coinsDeposited >= singleSongPrice  else {
             throw VendingMachineError.insufficientFunds(coinsNeeded: singleSongPrice)
         }
 
-        coinsDeposited -= 5
+        // access instance properties and methods
+        coinsDeposited -= singleSongPrice
 
         refundRemaining()
 
