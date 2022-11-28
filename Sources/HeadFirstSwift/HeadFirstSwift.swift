@@ -75,6 +75,13 @@ public struct HeadFirstSwift {
         }
     }
 
+    // generic function
+    static func swapTwoValues<T>(_ a: inout T, _ b: inout T) {
+        let temp = a
+        a = b
+        b = temp
+    }
+
     static func buy(_ vendingMachine: VendingMachine, _ name: String, deposit: Int? = nil) {
         print("Buying \(name) from vending machine")
 

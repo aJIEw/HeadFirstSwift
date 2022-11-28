@@ -276,6 +276,18 @@ repeat {
 
 Swift 中的 `switch` 语法和其它语言基本一样，不同的是在 `case` 判断中支持更多的模式匹配，比如支持多个值判断、区间判断、元组、临时赋值等。具体请看 [`control_flow.swift`](./src/control_flow.swift)。
 
+#### Optional Chaining
+
+我们可以链式调用可为空的值：
+
+```swift
+if let hasRmb = person.wallert?.rmb?.notEmpty {
+    print("You can pay with RMB.")
+} else {
+    print("Insufficient funds.")
+}
+```
+
 #### guard
 
 `guard` 和 `if` 的区别在于，它要求条件必须为 `true` 才能执行后面的代码，并且总是包含一个 `else` 语句。
@@ -1049,21 +1061,175 @@ extension VendingMachine {
 
 注意，添加新的实例变量必须是 computed properties。
 
-### 其它
+### Generics
 
-#### Optional Chaining
+Swift 中同样可以使用泛型。
 
-我们对可为空的值可以链式调用：
+#### 泛型方法
 
 ```swift
-if let hasRmb = person.wallert?.rmb?.notEmpty {
-    print("You can pay with RMB.")
-} else {
-    print("Insufficient funds.")
+func swapTwoValues<T>(_ a: inout T, _ b: inout T) {
+    let temp = a
+    a = b
+    b = temp
 }
 ```
 
-#### 异常处理
+使用：
+
+```swift
+var var1 = "var1"
+var var2 = "var2"
+swapTwoValues(var1, var2)
+print("var1 = \(var1), var2 = \(var2)")
+```
+
+#### 类型限制
+
+我们可以为泛型设置类型限制 (*Type Constraints*) 来明确泛型的使用边界。
+
+```swift
+func someFunc<T: SomeClass, M: SomeProtocol>(someT: T, someM: M) {
+    someT.doSomething()
+    someM.doSomething()
+}
+```
+
+#### Associated Types
+
+在定义 protocol 时，我们有时会需要定义一个相关的数据类型，类似于泛型类中的泛型数据类型。
+
+```swift
+protocol Container {
+    associatedtype Item
+    mutating func append(_ item: Item)
+    var count: Int { get }
+    subscript(i: Int) -> Item { get }
+}
+```
+
+上面定义了 `Container` 的 protocol，内部使用 `associatedtype` 定义了一个 Item 类作为关联类型，并且部分方法中使用到该类型。接下来我们定一个实现类：
+
+```swift
+struct IntStack: Container {
+    // 指定 Container 中的 Item 类型为 Int
+    typealias Item = Int
+  
+    var items: [Int] = []
+  
+    mutating func push(_ item: Int) {
+        items.append(item)
+    }
+    mutating func pop() -> Int {
+        return items.removeLast()
+    }
+  
+    mutating func append(_ item: Int) {
+        self.push(item)
+    }
+  
+    var count: Int {
+        return items.count
+    }
+  
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
+```
+
+当然，我们也可以使用泛型类来实现 `Container`：
+
+```swift
+// 标准库中 Stack 的实现
+struct Stack<Element>: Container {
+    var items: [Element] = []
+    mutating func push(_ item: Element) {
+        items.append(item)
+    }
+    mutating func pop() -> Element {
+        return items.removeLast()
+    }
+    mutating func append(_ item: Element) {
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Element {
+        return items[i]
+    }
+}
+```
+
+另外，在关联类型上也可以添加类型限制。
+
+```swift
+associatedtype Item: Equatable
+```
+
+最后，关于泛型上 `where` 关键字的使用，请看[文档](https://docs.swift.org/swift-book/LanguageGuide/Generics.html)。
+
+#### Opaque Types
+
+我们有时可能不想要返回具体的类型，此时就需要用到模糊类型。比如下面的例子：
+
+```swift
+protocol Shape {
+    func draw() -> String
+}
+
+struct Triangle: Shape {
+    var size: Int
+    func draw() -> String {
+        var result: [String] = []
+        for length in 1...size {
+            result.append(String(repeating: "*", count: length))
+        }
+        return result.joined(separator: "\n")
+    }
+}
+
+struct Square: Shape {
+    var size: Int
+    func draw() -> String {
+        let line = String(repeating: "*", count: size)
+        let result = Array<String>(repeating: line, count: size)
+        return result.joined(separator: "\n")
+    }
+}
+
+struct JoinedShape<T: Shape, U: Shape>: Shape {
+    var top: T
+    var bottom: U
+    func draw() -> String {
+        return top.draw() + "\n" + bottom.draw()
+    }
+}
+```
+
+我们定义了一个 `Shape` protocol，其中主要包含一个 draw 方法用来表示绘制自身形状，然后实现了两个形状类以及一个由两个形状拼接而成的合成形状。接下来我们定义一个使用这些形状的方法：
+
+```swift
+func makeTrapezoid() -> some Shape {
+    let top = Triangle(size: 2)
+    let bottom = Square(size: 2)
+    let joinedShape = JoinedShape(
+        top: top,
+        bottom: bottom
+    )
+    return joinedShape
+}
+```
+
+上面的例子中，我们使用了 `some` 关键字，这样我们就对外部隐藏了具体的形状类型，但是并不影响调用 `draw` 方法。
+
+```swift
+let trapezoid = makeTrapezoid()
+trapezoid.draw()
+```
+
+### Error Handling
 
 Swift 中的异常用 `Error` 代表，它是一个内容为空的 protocol，我们可以使用它来自定义我们的异常，通常使用 `enum` 类来实现。
 
@@ -1090,7 +1256,7 @@ throw VendingMachineError.insufficientFunds(coinsNeeded: 5)
 
 下面一一介绍。
 
-##### 向外传递异常
+#### 向外传递异常
 
 当某个方法不去处理异常时，可以使用 `throws` 关键字将异常向外抛出：
 
@@ -1104,7 +1270,7 @@ func vend(name: String) throws {
 }
 ```
 
-##### 捕捉异常
+#### 捕捉异常
 
 语法：
 
@@ -1135,7 +1301,7 @@ do {
 }
 ```
 
-##### 用可选值接收
+#### 用可选值接收
 
 当我们只是想要获取结果时，可以不对有可能抛出的异常进行处理，而是用可选值接收：
 
@@ -1145,7 +1311,7 @@ let result = try? funcMightThrows()
 
 上面使用 `try?` 调用了一个有可能抛出异常的方法，调用成功则会获得结果，抛出异常则结果为 `nil`。
 
-##### 判断异常不会出现
+#### 判断异常不会出现
 
 当我们确信不会抛出异常时，可以强制完成调用，将异常放到运行时抛出。
 
@@ -1153,7 +1319,7 @@ let result = try? funcMightThrows()
 let photo = try! loadImage(atPath: "./Resources/John Appleseed.jpg")
 ```
 
-##### `defer` 表达式
+#### `defer` 表达式
 
 当一个方法有可能会抛出异常时，我们可能想要在异常抛出时执行一些操作，比如打开一个文件流后，如果执行过程中出现异常，我们会想要及时关闭文件流，此时可以使用 `defer` 表达式：
 
