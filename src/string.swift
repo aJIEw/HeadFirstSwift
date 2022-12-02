@@ -62,4 +62,4 @@ let substring = greeting[start...end]
 // let substring = greeting[start..<end]
 print("substring =\"\(substring)\"")
 
-var substringToNewString = String(substring))
+var substringToNewString = String(substring)

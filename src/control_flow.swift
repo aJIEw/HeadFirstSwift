@@ -123,5 +123,4 @@ case 2, 3, 5, 7, 11, 13, 17, 19:
 default:
     description += " an integer."
 }
-print(description
-)
+print(description)

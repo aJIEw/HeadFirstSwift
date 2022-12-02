@@ -2,7 +2,7 @@
 
 Swift 是在 2014 年苹果开发者大会上面世的新语言，相比 Objective-C，它的语法更简洁，也更现代化。
 
-这篇学习笔记主要参考自 [learnxinyminutes.com](https://learnxinyminutes.com/docs/swift/) 和 [Swift 官方文档](https://docs.swift.org/swift-book/)。
+这篇学习笔记主要参考自 [Swift 官方文档](https://docs.swift.org/swift-book/)。
 
 ### The Basics
 
@@ -63,7 +63,7 @@ print("The result is \(http200Success.result))
 
 类似于 Kotlin 中的 nullable 和 Dart 中的 null safe，用于表示一个变量可能没有值。
 
-用法也非常相似，不同的地方在于，它需要使用 `!` 转换 (*unwrap*) 后才能使用：
+用法也基本一致，不同的地方在于，它需要使用 `!` 转换 (*unwrap*) 后才能使用：
 
 ```swift
 var serverResponseCode: Int? = nil
@@ -79,7 +79,7 @@ if serverResponseCode != nil {
 
 ```swift
 if let constantName = someOptional {
-    statements
+    // now you can use `constantName`
 }
 ```
 
@@ -386,7 +386,7 @@ let sortedWithClosure = languages.sorted(by: {
 以上例子中，`sorted` 方法的 `by` 参数接收的是一个方法类型，因此我们可以创建一个 closure 去完成调用。一个 closure 的完整语法如下：
 
 ```swift
-{ (parameters) -> return type in
+{ (parameters) -> returnType in
     statements
 }
 ```
@@ -519,6 +519,23 @@ enum Planet: Int {
 }
 // 使用 rawValue 访问原始数据
 print("Earth is No.\(Planet.earth.rawValue) in the solar system.")
+
+
+// enum 类也可以保存值 (associated value)
+enum ListType {
+    case vertical(Int)
+    case horizontal(Int, String)
+}
+
+// 获取值
+switch(listType) {
+case .vertical(let column):
+    print("It's a vertical list with \(column) columns")
+case let .horizontal(row, id):
+    print("It's a horizontal list with \(row) rows, id = \(id)")
+default:
+    print("Unknow type")
+}
 ```
 
 ### Structures and Classes
@@ -939,6 +956,30 @@ struct Manager {
     func attendMeeting(meetingName: String) {
         print("\(name)(\(jobTitle)) is attending <\(meetingName)> meeting.")
     }
+}
+```
+
+### Concurrency
+
+并发是个复杂的话题，所以这里不会详细展开。Swift 中的并发用法和 Kotlin 或 Dart 基本一致，背后都是基于 thread 实现，我们只需要使用几个简单的关键字就能实现同步和异步执行代码。
+
+```swift
+static func fetchUserId() async -> Int {
+    print("fetching user id...")
+    try? await Task.sleep(nanoseconds: 1000_000_000)
+    return Int.random(in: 1..<5)
+}
+
+static func fetchUserName(userId: Int) async -> String {
+    print("fetching user name...")
+    try? await Task.sleep(nanoseconds: 1000_000_000)
+    return "User\(userId)"
+}
+
+public static func main() async {
+    let userId = await fetchUserId()
+    async let userName = fetchUserName(userId: userId)
+    print("User name = \(await userName)")
 }
 ```
 

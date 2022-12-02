@@ -40,3 +40,20 @@ enum Planet: Int {
 print("Earth is No.\(Planet.earth.rawValue) in the solar system.")
 var mars = Planet[4]
 print(mars)
+
+// associated with values
+enum ListType {
+    case vertical(Int)
+    case horizontal(Int, String)
+}
+
+var listType: ListType = .horizontal(2, "pageId")
+// extract them with switch
+switch(listType) {
+case .vertical(let column):
+    print("It's a vertical list with \(column) columns")
+case let .horizontal(row, id):
+    print("It's a horizontal list with \(row) rows, id = \(id)")
+default:
+    print("Unknow type")
+}

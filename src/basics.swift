@@ -35,7 +35,7 @@ if let response = fetchedResponse {
 
 
 print("===================== assert & precondition =====================")
-var index = 3
+var index = 4
 if index < 10 {
   print("index = \(index)")
 }

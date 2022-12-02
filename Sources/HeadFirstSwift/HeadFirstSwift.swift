@@ -1,3 +1,5 @@
+import Foundation
+
 var globalVariable: String = "Swift"
 
 func gloablFunc() {
@@ -9,7 +11,7 @@ func gloablFunc() {
 public struct HeadFirstSwift {
     public private(set) var text = "Hello, World!"
 
-    public static func main() {
+    public static func main() async {
         print("===================== struct & class =====================")
 
         var hd = Resolution(width: 1920, height: 1080)
@@ -58,6 +60,12 @@ public struct HeadFirstSwift {
         cto.attendMeeting(meetingName: "Product Release Date")
 
 
+        print("===================== Concurrency =====================")
+        let userId = await fetchUserId()
+        async let userName = fetchUserName(userId: userId)
+        print("User name = \(await userName)")
+
+
         print("===================== Protocols =====================")
         var lightSwitch = OnOffSwitch.on
         print("light is \(lightSwitch)")
@@ -92,8 +100,21 @@ public struct HeadFirstSwift {
             try vendingMachine.vend(name: name)
             print("Enjoy your \(name)!")
         } catch {
-            print("Can't vend you \(name), something went wrong: \(error)")
+            print("Can't vend you \(name): \(error)")
             vendingMachine.refundRemaining()
         }
+    }
+
+    static func fetchUserId() async -> Int {
+        print("fetching user id...")
+        // sleep(forTimeInterval: 1)
+        try? await Task.sleep(nanoseconds: 1000_000_000)
+        return Int.random(in: 1..<5)
+    }
+
+    static func fetchUserName(userId: Int) async -> String {
+        print("fetching user name...")
+        try? await Task.sleep(nanoseconds: 1000_000_000)
+        return "User\(userId)"
     }
 }
