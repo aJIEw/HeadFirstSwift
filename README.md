@@ -295,11 +295,12 @@ if let hasRmb = person.wallert?.rmb?.notEmpty {
 ```swift
 func greet(person: [String: String]) {
     guard let name = person["name"] else {
+        // else 中必须使用 return 或者 throw 抛出异常中断后续代码的执行
         return
     }
 
   	// 使用 guard 后，optional binding 中的变量在后面的作用域中也可用了
-    print("Hello \(name)!") // 改成 if 后试试
+    print("Hello \(name)!") // 将 guard 改成 if 后再试试
 
     guard let location = person["location"] else {
         print("I hope the weather is nice near you.")

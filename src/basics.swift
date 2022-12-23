@@ -27,11 +27,17 @@ if serverResponseCode != nil {
     print("no reponse")
 }
 
+enum ResponseException: String, Error {
+  case noCode
+}
+
 let fetchedResponse = Int("200") // return Int?
 // optional binding
-if let response = fetchedResponse {
-  print("fetched response code: \(response)")
+guard let response = fetchedResponse else {
+  print("no response code")
+  throw ResponseException.noCode
 }
+print("fetched response code: \(response)")
 
 
 print("===================== assert & precondition =====================")
