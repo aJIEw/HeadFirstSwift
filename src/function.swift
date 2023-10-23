@@ -3,7 +3,7 @@ func greeting(name: String) -> String {
 }
 print(greeting(name: "Swift"))
 
-// ommiting arguemnt label
+// use underscore _ to ommit arguemnt label
 func greeting(_ name: String, from: String) {
    print("Hi \(name), from \(from).")
 }

@@ -19,22 +19,22 @@ print("The result is \(http200Success.result)")
 
 
 print("===================== Optionals =====================")
-var serverResponseCode: Int? = nil
+var serverResponseCode: Int? = 200
 
+// optional binding
 if serverResponseCode != nil {
-	  print("response code: \(serverResponseCode!)")
-} else {
-    print("no reponse")
+	  print("response code unwrapped: \(serverResponseCode!)!")
 }
 
 enum ResponseException: String, Error {
   case noCode
 }
 
-let fetchedResponse = Int("200") // return Int?
-// optional binding
+let fetchedResponse: Int? = 200 // try set to nil
+// guard will only execute when it's true, and alawys contains an else
 guard let response = fetchedResponse else {
-  print("no response code")
+  print("no response")
+  // Unsually we will throw an exception in else
   throw ResponseException.noCode
 }
 print("fetched response code: \(response)")
@@ -46,7 +46,8 @@ if index < 10 {
   print("index = \(index)")
 }
 
-precondition(index > 3)
 assert(index > 3)
+// assert only works in debug, while precondition works both on debug and production
+precondition(index > 3)
 
 print("=====================>End of file.")

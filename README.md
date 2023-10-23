@@ -338,7 +338,7 @@ func greeting(name: String) -> String {
 }
 ```
 
-Swift 中的方法参数与 Objective-C 中一样，是方法名称的一部分，参数分为标签 (*argument label*) 和名称 (*parameter name*) 两部分。假如我们没有定义标签，则默认使用参数名称作为标签，如果想要使用不具名参数，则可以使用 `_` 作为标签。
+Swift 中的方法参数与 Objective-C 中一样，是方法名称的一部分，参数分为标签 (*argument label*) 和名称 (*parameter name*) 两部分。假如我们没有定义标签，则**默认使用参数名称作为标签**，如果想要使用不具名参数，则可以使用 `_` 作为标签。
 
 ```swift
 // 方法名称是：greeting(for:)，参数标签和参数名称不同
